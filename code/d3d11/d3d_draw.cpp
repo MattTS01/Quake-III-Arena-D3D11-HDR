@@ -5,6 +5,19 @@
 #include "d3d_image.h"
 #include "d3d_shaders.h"
 
+
+// Update the HDR constants in the shaders since I couldn't seem to get it working from doing it once during the init stage
+void UpdateHdrConstants() {
+
+    // read value from CVAR
+    cvar_t* maxOutput = Cvar_Get("r_maxoutput", "1000.0", 0);
+
+
+    // get float value from cvar and convert to normalised HDR10 value
+    g_RunState.psConstants.maxOutput = QD3D::luminanceToST2084(maxOutput->value);
+
+}
+
 void UpdateDirtyViewVS()
 {
     // Upload the constants
@@ -16,6 +29,8 @@ void UpdateDirtyViewVS()
 
 void UpdateDirtyViewPS()
 {
+    UpdateHdrConstants();
+
     // Upload the constants
     d3dViewPSConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewPSConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.psConstantBuffer );
     memcpy( cb, &g_RunState.psConstants, sizeof(d3dViewPSConstantBuffer_t) );
@@ -506,7 +521,7 @@ static void TessDrawFog( const shaderCommands_t* input )
         buffers->fog.texCoords.currentOffset,
         buffers->fog.colors.currentOffset
     };
-    
+
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
     g_pImmediateContext->IASetIndexBuffer( buffers->indexes.buffer, DXGI_FORMAT_R16_UINT, buffers->indexes.currentOffset );
     g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );

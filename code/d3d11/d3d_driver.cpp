@@ -230,7 +230,7 @@ void D3DDrv_EndFrame( void )
     default: hr = g_pSwapChain->Present1( 0, 0, &parameters ); break; 
     }
 
-#ifdef WIN8
+//#ifdef WIN8
 	// Discard the contents of the render target.
 	// This is a valid operation only when the existing contents will be entirely
 	// overwritten. If dirty or scroll rects are used, this call should be removed.
@@ -240,8 +240,9 @@ void D3DDrv_EndFrame( void )
 	g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
 
     // Present unbinds the rendertarget, so let's put it back (FFS)
+    // Also seems to be required for new flip swap chain method
     g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
-#endif
+//#endif
 
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{

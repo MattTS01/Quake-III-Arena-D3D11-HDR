@@ -68,6 +68,9 @@ void InitQuadRenderData( d3dQuadRenderData_t* qrd )
     if ( !qrd->constantBuffer ) {
         ri.Error( ERR_FATAL, "Could not create FSQ constant buffer.\n" );
     }
+
+
+
 }
 
 void DestroyQuadRenderData( d3dQuadRenderData_t* qrd )
@@ -167,6 +170,9 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
     if ( !rd->psConstantBuffer ) {
         ri.Error( ERR_FATAL, "Could not create SkyBox PS constant buffer.\n" );
     }
+
+   
+   
 }
 
 void DestroySkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
@@ -204,6 +210,8 @@ void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
     CreateVertexLayoutAndShader( "genericst_vs", elementsST, _countof(elementsST), &rd->vertexShaderST, &rd->inputLayoutST );
     rd->pixelShaderMT = LoadPixelShader( "genericmt_ps" );
     rd->pixelShaderST = LoadPixelShader( "genericst_ps" );
+
+
 }
 
 void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd )
@@ -235,6 +243,7 @@ void InitViewRenderData( d3dViewRenderData_t* vrd )
     if ( !vrd->psConstantBuffer ) {
         ri.Error( ERR_FATAL, "Could not create view constant buffer.\n" );
     }
+
 }
 
 void DestroyViewRenderData( d3dViewRenderData_t* vrd )

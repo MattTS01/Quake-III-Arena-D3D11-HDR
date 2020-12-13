@@ -1,6 +1,7 @@
 #include "../d3d11/d3d_common.h"
 #include "../d3d11/d3d_device.h"
 
+
 extern "C" {
 #   include "resource.h"
 #   include "win_local.h"
@@ -150,12 +151,28 @@ D3D_PUBLIC void D3DWnd_Init( void )
 
 	QD3D11Device* device = InitDevice();
 
+    // Check HDR capability before creating swap chains
+    bool hdrCapable = CheckHDRCapability(vid_xpos->integer, vid_ypos->integer, vid_xpos->integer + vdConfig.vidWidth, vid_ypos->integer + vdConfig.vidHeight);
+
+    ri.Printf(PRINT_ALL, "HDR capable? %i \n", hdrCapable);
+
+    if (!hdrCapable) {
+        // If HDR is not enabled then there's no reason to run this version over any other
+        ri.Error(ERR_FATAL, "Dispay is not HDR capable. Please enable HDR or run on an HDR capable display.\n");
+        return;
+    }
+
+
     DXGI_SWAP_CHAIN_DESC1 scDesc;
 	ZeroMemory( &scDesc, sizeof(scDesc) );
-    scDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // need to use new flip_discard or flip_sequential for HDR
     scDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     
+    // Need to choose between FP16 and 10bit HDR formats for the swapchain here
+    // flip swap chains handle MSAA differently too
     GetSwapChainDescFromConfig( &scDesc );
+    
+    //scDesc.SampleDesc.Count = 1;
     
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsd;
     ZeroMemory( &fsd, sizeof(fsd) );

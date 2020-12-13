@@ -33,6 +33,20 @@ namespace QD3D
 #endif
     }
 
+	float luminanceToST2084(float luminance) {
+
+		float normLum = luminance / 10000.0f; // luminance normalised by 10000 cd/m^2
+		normLum = pow(normLum, ST_2084_M1); // luminance is to the power of constant m1
+		float dividend = ST_2084_C1 + (ST_2084_C2 * normLum);
+		float divisor = 1.0f + (ST_2084_C3 * normLum);
+
+		float result = dividend / divisor;
+
+		result = pow(result, ST_2084_M2);
+
+		return result;
+	}
+
 	//----------------------------------------------------------------------------
 	// Creates a device with the default settings and returns the maximum feature 
 	// level
@@ -89,7 +103,19 @@ namespace QD3D
 		_Out_ DXGI_SWAP_CHAIN_DESC1* scd)
 	{
 		scd->BufferCount = 2;
-		scd->Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+
+		// Set HDR surface format - HDR10 or float
+		cvar_t *hdrFormat = Cvar_Get("r_hdrformat", "1", 0);
+
+		if (hdrFormat->integer == QD3D_HDR_FORMAT_FP16) {
+			scd->Format = DXGI_FORMAT_R16G16B16A16_FLOAT; // 64 bit float linear
+		}
+		else { // just default to this for now 
+			scd->Format = DXGI_FORMAT_R10G10B10A2_UNORM; // 32 bit non-linear
+		}
+
+
+
 		scd->BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd->SampleDesc.Count = 1;
 		scd->SampleDesc.Quality = 0;
@@ -105,7 +131,21 @@ namespace QD3D
 		_In_ UINT msaaSamples,
 		_Out_ DXGI_SWAP_CHAIN_DESC1* out)
 	{
-		const DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		// Set HDR surface format
+
+		//const DXGI_FORMAT format = DXGI_FORMAT_R10G10B10A2_UNORM;
+		DXGI_FORMAT format;
+
+		// Set HDR surface format - HDR10 or float
+		cvar_t* hdrFormat = Cvar_Get("r_hdrformat", "1", 0);
+
+		if (hdrFormat->integer == QD3D_HDR_FORMAT_FP16) {
+			format = DXGI_FORMAT_R16G16B16A16_FLOAT; // 64 bit float linear
+		}
+		else { // just default to this for now 
+			format = DXGI_FORMAT_R10G10B10A2_UNORM; // 32 bit non-linear
+		}
+;
 
 		UINT qualityLevels = 0;
 		HRESULT hr = device->CheckMultisampleQualityLevels(format, msaaSamples, &qualityLevels);

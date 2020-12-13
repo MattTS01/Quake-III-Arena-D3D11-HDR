@@ -31,6 +31,8 @@ enum
 //----------------------------------------------------------------------------
 // Dynamic buffer layouts
 //----------------------------------------------------------------------------
+
+
 struct d3dQuadRenderVertex_t
 {
     float coords[2];    
@@ -56,7 +58,8 @@ struct d3dViewPSConstantBuffer_t
 {
     float clipPlane[4];
     float alphaClip[2];
-    float __padding[2];
+    float maxOutput;
+    float gamma;
 };
 
 struct d3dSkyBoxVSConstantBuffer_t
@@ -133,6 +136,7 @@ struct d3dGenericStageRenderData_t
     ID3D11VertexShader* vertexShaderMT;
     ID3D11PixelShader* pixelShaderMT;
     ID3D11InputLayout* inputLayoutMT;
+
 };
 
 struct d3dCircularBuffer_t
@@ -241,6 +245,7 @@ extern d3dDrawState_t g_DrawState;
 extern QD3D11Device* g_pDevice;
 extern ID3D11DeviceContext1* g_pImmediateContext;
 extern IDXGISwapChain1* g_pSwapChain;
+extern IDXGISwapChain3* g_pSwapChain3;
 
 //----------------------------------------------------------------------------
 // Internal APIs

@@ -1,6 +1,17 @@
 #ifndef __D3D_COMMON_H__
 #define __D3D_COMMON_H__
 
+// defs for new HDR surface formats
+#define QD3D_HDR_FORMAT_FP16 0
+#define QD3D_HDR_FORMAT_HDR10 1
+
+// constants for ST2084 PQ conversion
+#define ST_2084_C1 0.8359375f
+#define ST_2084_C2 18.8515625f
+#define ST_2084_C3 18.6875f
+#define ST_2084_M1 0.1593017578125f
+#define ST_2084_M2 87.84375f
+
 extern "C" {
 #   include "../renderer/tr_local.h"
 #   include "../renderer/tr_layer.h"
@@ -22,8 +33,8 @@ extern "C" {
 #   define QD3D11Device     ID3D11Device2
 #   define QDXGIDevice      IDXGIDevice3
 #else
-#   include <dxgi1_2.h>
-#   include <d3d11_1.h>
+#   include <dxgi1_6.h>
+#   include <d3d11_4.h>
 #   define QD3D11Device     ID3D11Device1
 #   define QDXGIDevice      IDXGIDevice2
 #endif
@@ -93,6 +104,8 @@ template<class T> __forceinline void SAFE_SWAP(T*& ptr, T* other)
 
 namespace QD3D
 {
+	// convert luminance in cd/m^2 to normalised float in ST 2084 levels
+	float luminanceToST2084(float luminance);
 	//----------------------------------------------------------------------------
 	// Returns true if the debug layers are available
 	//----------------------------------------------------------------------------

@@ -3,6 +3,8 @@ cbuffer ViewDataPS : register(b0)
 {
     float4 c_ClipPlane;
     float2 c_AlphaClip;
+    float maxOutput;
+    float gamma;
 };
 
 void ClipToPlane(float4 vpos)
