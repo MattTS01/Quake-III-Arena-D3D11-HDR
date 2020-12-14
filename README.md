@@ -9,6 +9,7 @@ Note: Currently does not support non-HDR displays at all. Will exit out on start
 - Areas with animated textures appear darker than expected
 - 4k resolution doesn't seem to fill the screen properly
 - scoring/leaderboard seems broken
+- MSAA not currently supported due to change in MSAA handling for new swapchain type 
 
 
 # HDR CVARs
