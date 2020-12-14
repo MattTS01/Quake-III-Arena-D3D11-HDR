@@ -5,13 +5,19 @@ Currently checks for HDR support, creates an HDR swapchain, sets HDR metadata fr
 
 Note: Currently does not support non-HDR displays at all. Will exit out on start-up if HDR support is not available. 
 
+# Known issues
+- Areas with animated textures appear darker than expected
+- 4k resolution doesn't seem to fill the screen properly
+- scoring/leaderboard seems broken
+
+
 # HDR CVARs
 
-r_hdrformat - 0 HDR10 ST2084, 1 FP16 linear scRGB (not currently handled properly)
-r_maxoutput - sets the max display output for metadata and tonemapping in cd/m^2
-r_minoutput - sets the min display output for metadata in cd/m^2
-r_maxcll - sets the max content luminance in cd/m^2
-r_maxfall - sets the max frame average luminance in cd/m^2
+- r_hdrformat - 0 HDR10 ST2084, 1 FP16 linear scRGB (not currently handled properly)
+- r_maxoutput - sets the max display output for metadata and tonemapping in cd/m^2
+- r_minoutput - sets the min display output for metadata in cd/m^2
+- r_maxcll - sets the max content luminance in cd/m^2
+- r_maxfall - sets the max frame average luminance in cd/m^2
 
 
 
