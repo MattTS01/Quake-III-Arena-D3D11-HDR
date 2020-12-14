@@ -1,3 +1,21 @@
+# Quake 3: Arena HDR 
+Modified version of the Quake 3 Arena D3D11 port to support an HDR swapchain and tonemapping to HDR colour space. Very early and still requires a lot of work and tweaking. 
+
+Currently checks for HDR support, creates an HDR swapchain, sets HDR metadata from new CVARs and tonemaps to within this range.
+
+Note: Currently does not support non-HDR displays at all. Will exit out on start-up if HDR support is not available. 
+
+# HDR CVARs
+
+r_hdrformat - 0 HDR10 ST2084, 1 FP16 linear scRGB (not currently handled properly)
+r_maxoutput - sets the max display output for metadata and tonemapping in cd/m^2
+r_minoutput - sets the min display output for metadata in cd/m^2
+r_maxcll - sets the max content luminance in cd/m^2
+r_maxfall - sets the max frame average luminance in cd/m^2
+
+
+
+
 # Quake 3: Arena NT #
 
 This is a version of the Quake 3: Arena source code built for x64 & ARM, Windows 8 and Windows Desktop, Direct3D 11, XAudio2 and XInput.
