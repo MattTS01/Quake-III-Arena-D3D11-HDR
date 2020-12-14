@@ -28,12 +28,14 @@ float4 main(VS_PS_Data input) : SV_TARGET
     float3 mapped;
 
     // Reinhard tone mapping
-    mapped = simple_reinhard(outColour, 1.0); // around 850 cd/m^2 converted to normalised value for ST 2084
+    mapped = simple_reinhard(outColour, 1.0); 
 
     // Gamma correction
     mapped = pow(mapped, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 
-    //mapped = float3(maxOutput, maxOutput, maxOutput);
+    mapped = float3(1.0, 0.0, 1.0);
+
+    // doesn't seem this shader is actually used for Skyboxes?
 
     return float4(mapped, outColour.a);
 }

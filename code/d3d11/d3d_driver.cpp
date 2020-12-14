@@ -234,10 +234,10 @@ void D3DDrv_EndFrame( void )
 	// Discard the contents of the render target.
 	// This is a valid operation only when the existing contents will be entirely
 	// overwritten. If dirty or scroll rects are used, this call should be removed.
-	g_pImmediateContext->DiscardView( g_BufferState.backBufferView );
+	//g_pImmediateContext->DiscardView( g_BufferState.backBufferView );
 
 	// Discard the contents of the depth stencil.
-	g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
+	//g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
 
     // Present unbinds the rendertarget, so let's put it back (FFS)
     // Also seems to be required for new flip swap chain method
@@ -320,13 +320,15 @@ void SetupVideoConfig()
     vdConfig.displayFrequency = 60;
 #endif
     
-#ifdef WIN8
+//#ifdef WIN8
+
+    // also seem to be required on Windows 10? Seems to fix 4k support - might be related to DPI scaling? 
     // We expect vidWidth, vidHeight and windowAspect to all be set by now in most cases,
     // but on Win8 they can be enforced by the system instead of set by us.
     vdConfig.vidWidth = g_BufferState.swapChainDesc.Width;
     vdConfig.vidHeight = g_BufferState.swapChainDesc.Height;
     vdConfig.windowAspect = vdConfig.vidWidth / (float)vdConfig.vidHeight;
-#endif
+//#endif
 }
 
 D3D_PUBLIC void D3DDrv_DriverInit( void )

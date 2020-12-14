@@ -33,6 +33,10 @@ namespace QD3D
 #endif
     }
 
+
+	// Convert cd/m^2 value until ST2084 value
+	// https://en.wikipedia.org/wiki/High-dynamic-range_video#Perceptual_quantizer
+
 	float luminanceToST2084(float luminance) {
 
 		float normLum = luminance / 10000.0f; // luminance normalised by 10000 cd/m^2
@@ -309,7 +313,7 @@ namespace QD3D
 		pViewport->TopLeftX = 0;
 		pViewport->TopLeftY = 0;
 		pViewport->MinDepth = 0;
-		pViewport->MaxDepth = 1;
+		pViewport->MaxDepth = 1; 
 
 		return S_OK;
 	}

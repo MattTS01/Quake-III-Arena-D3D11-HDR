@@ -36,7 +36,7 @@ float4 main(VS_PS_Data input) : SV_TARGET
     float3 mapped;
 
     // Reinhard tone mapping
-    mapped = simple_reinhard(outColour, maxOutput); // around 850 cd/m^2 converted to normalised value for ST 2084
+    mapped = simple_reinhard(outColour, maxOutput); 
 
     // gamma correction
     mapped = pow(mapped, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));

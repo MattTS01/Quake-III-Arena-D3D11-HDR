@@ -13,9 +13,6 @@ inline int ComputeIntersectionArea(int ax1, int ay1, int ax2, int ay2, int bx1, 
     return max(0, min(ax2, bx2) - max(ax1, bx1)) * max(0, min(ay2, by2) - max(ay1, by1));
 }
 
-// Convert cd/m^2 value until ST2084 value
-// https://en.wikipedia.org/wiki/High-dynamic-range_video#Perceptual_quantizer
-
 
 // new function to check if the current display is HDR capable 
 bool CheckHDRCapability( int left, int top, int right, int bottom) {
