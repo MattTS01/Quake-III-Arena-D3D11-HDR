@@ -6,14 +6,14 @@ Currently checks for HDR support, creates an HDR swapchain, sets HDR metadata fr
 Note: Currently does not support non-HDR displays at all. Will exit out on start-up if HDR support is not available. 
 
 # Known issues
-- Areas with animated textures appear darker than expected
-- scoring/leaderboard seems broken
 - MSAA not currently supported due to change in MSAA handling for new swapchain type 
+- scoring/leaderboard seems broken in the x64 build (likely due to some sort of type sizing issue)
+
 
 
 # HDR CVARs
 
-- r_hdrformat - 0 HDR10 ST2084, 1 FP16 linear scRGB (not currently handled properly)
+- r_hdrformat - 1 HDR10 ST2084, 0 FP16 linear scRGB (not currently handled properly)
 - r_maxoutput - sets the max display output for metadata and tonemapping in cd/m^2
 - r_minoutput - sets the min display output for metadata in cd/m^2
 - r_maxcll - sets the max content luminance in cd/m^2
