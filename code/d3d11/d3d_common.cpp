@@ -532,7 +532,16 @@ namespace QD3D
 		dsd.Usage = D3D11_USAGE_DEFAULT;
 		dsd.BindFlags = bindFlags;
 		
-		device->CreateTexture2D(&dsd, &subres, &texture);
+		// Create texture without providing a buffer if the argument is NULL
+		HRESULT result;
+
+		if (pData != NULL) {
+			result = device->CreateTexture2D(&dsd, &subres, &texture);
+		}
+		else {
+			result = device->CreateTexture2D(&dsd, NULL, &texture);
+		}
+
 
 		return texture;
 	}
@@ -759,8 +768,11 @@ namespace QD3D
 		srvd.Texture2D.MipLevels = t2dd.MipLevels;
 		srvd.Texture2D.MostDetailedMip = 0;
 
+		HRESULT result;
 		ID3D11ShaderResourceView* view = NULL;
-		device->CreateShaderResourceView(texture, &srvd, &view);
+		result = device->CreateShaderResourceView(texture, &srvd, &view);
+
+
 		return view;
 	}
 

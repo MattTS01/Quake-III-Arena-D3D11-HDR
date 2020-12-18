@@ -168,16 +168,24 @@ void InitSwapChain( IDXGISwapChain1* swapChain )
     // Create SwapChain4 interface
     hr = g_pSwapChain->QueryInterface(IID_IDXGISwapChain4, (LPVOID*)&g_pSwapChain4);
 
+    if (FAILED(hr)) {
+        exit(1);
+    }
+
     // Enable HDR colour space for the swap chain if set to HDR10
     cvar_t* hdrFormat = Cvar_Get("r_hdrformat", "1", 0);
 
     if (hdrFormat->integer == QD3D_HDR_FORMAT_HDR10) {
-        g_pSwapChain4->SetColorSpace1(DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020);
+        hr = g_pSwapChain4->SetColorSpace1(DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020);
+
+        if (FAILED(hr)) {
+            ri.Error(ERR_FATAL, "Failed to set HDR10 colour space.\n");
+            exit(1);
+        }
     }
 
-    if (FAILED(hr)) {
-        exit(1);
-    }
+
+
 
     // Set HDR metadata for the display display max brightness, display min brightness, content max brightness and highest average frame brightness
     // Read from CVARs
@@ -197,6 +205,9 @@ void InitSwapChain( IDXGISwapChain1* swapChain )
     FLOAT clearCol[4] = { 0, 0, 0, 0 };
     g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
     g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0 );
+    // Clear textures for post-processing stage (might be redundant to do it here)
+    //g_pImmediateContext->ClearRenderTargetView(g_BufferState.textureView, clearCol);
+    //g_pImmediateContext->ClearDepthStencilView(g_BufferState.depthTextureView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
     // Clear the screen immediately
     g_pSwapChain->Present( 0, 0 );

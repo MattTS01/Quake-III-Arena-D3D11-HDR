@@ -50,6 +50,61 @@ void CreateBuffers()
         g_BufferState.backBufferDesc.SampleDesc.Quality,
         D3D11_BIND_SHADER_RESOURCE);
     ASSERT(g_BufferState.depthBufferView);
+
+    // Create textures for intermediate rendering stage
+    ID3D11Texture2D* renderTexture;
+
+    // Colour buffer texture
+
+    renderTexture = QD3D::CreateTexture2D(
+        g_pDevice,
+        g_BufferState.backBufferDesc.Width,
+        g_BufferState.backBufferDesc.Height,
+        g_BufferState.backBufferDesc.Format,
+        NULL,
+        1,
+        g_BufferState.backBufferDesc.SampleDesc.Count,
+        g_BufferState.backBufferDesc.SampleDesc.Quality,
+        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET
+    );
+
+    // Get HDR surface format - HDR10 or float
+    cvar_t* hdrFormat = Cvar_Get("r_hdrformat", "1", 0);
+
+    DXGI_FORMAT textureFormat;
+
+    if (hdrFormat->integer == QD3D_HDR_FORMAT_FP16) {
+        // fp16 linear
+        textureFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    }
+    else { // just default to this for now 
+        // 32 bit non-linear
+        textureFormat = DXGI_FORMAT_R10G10B10A2_UNORM;
+    }
+
+    g_BufferState.textureView = QD3D::CreateTexture2DRenderTargetView(g_pDevice, renderTexture, textureFormat);
+
+    // Depth buffer texture
+
+    ID3D11Texture2D* renderDepthTexture;
+
+    renderDepthTexture = QD3D::CreateTexture2D(
+        g_pDevice,
+        g_BufferState.backBufferDesc.Width,
+        g_BufferState.backBufferDesc.Height,
+        DEPTH_TEXTURE_FORMAT,
+        NULL,
+        1,
+        g_BufferState.backBufferDesc.SampleDesc.Count,
+        g_BufferState.backBufferDesc.SampleDesc.Quality,
+        D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
+    );
+      
+    g_BufferState.depthTextureView = QD3D::CreateTexture2DDepthBufferView(g_pDevice, renderDepthTexture, DEPTH_DEPTH_VIEW_FORMAT);
+
+    // Create shader resource view so the texture can be rendered to screen
+    g_BufferState.textureShaderResourceView = QD3D::CreateTexture2DShaderResourceView(g_pDevice, renderTexture, textureFormat);
+
 }
 
 //----------------------------------------------------------------------------
@@ -59,6 +114,9 @@ void DestroyBuffers()
 {
     SAFE_RELEASE(g_BufferState.backBufferView);
     SAFE_RELEASE(g_BufferState.depthBufferView);
+    SAFE_RELEASE(g_BufferState.textureView);
+    SAFE_RELEASE(g_BufferState.depthTextureView);
+    SAFE_RELEASE(g_BufferState.textureShaderResourceView);
 }
 
 //----------------------------------------------------------------------------
@@ -383,6 +441,8 @@ void InitDrawState()
     InitShaders();
 
     InitQuadRenderData( &g_DrawState.quadRenderData );
+    // init new tone mapping render data
+    InitToneMapRenderData(&g_DrawState.toneMapRenderData);
     InitSkyBoxRenderData( &g_DrawState.skyBoxRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
     InitGenericStageRenderData( &g_DrawState.genericStage );
@@ -392,7 +452,9 @@ void InitDrawState()
     InitBlendStates( &g_DrawState.blendStates );
 
     // Set up some default state
-    g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+    // Will now render to a texture, tone-map and then render to actual backbuffer
+    //g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+    g_pImmediateContext->OMSetRenderTargets(1, &g_BufferState.textureView, g_BufferState.depthBufferView);
     D3DDrv_SetViewport( 0, 0, g_BufferState.backBufferDesc.Width, g_BufferState.backBufferDesc.Height );
     D3DDrv_SetState( GLS_DEFAULT );
 
@@ -400,6 +462,9 @@ void InitDrawState()
     FLOAT clearCol[4] = { 0, 0, 0, 0 };
     g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
     g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0 );
+    // clear texture render targets
+    g_pImmediateContext->ClearRenderTargetView(g_BufferState.textureView, clearCol);
+    g_pImmediateContext->ClearDepthStencilView(g_BufferState.depthTextureView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
     
     // Create the frame query
     SAFE_RELEASE( g_DrawState.frameQuery );
@@ -415,6 +480,7 @@ void DestroyDrawState()
     DestroyDepthStates( &g_DrawState.depthStates );
     DestroyBlendStates( &g_DrawState.blendStates );
     DestroyTessBuffers( &g_DrawState.tessBufs );
+    DestroyToneMapRenderData(&g_DrawState.toneMapRenderData);
     DestroyGenericStageRenderData( &g_DrawState.genericStage );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
     DestroySkyBoxRenderData( &g_DrawState.skyBoxRenderData );

@@ -10,7 +10,7 @@
 #define ST_2084_C2 18.8515625f
 #define ST_2084_C3 18.6875f
 #define ST_2084_M1 0.1593017578125f
-#define ST_2084_M2 87.84375f
+#define ST_2084_M2 78.84375f
 
 extern "C" {
 #   include "../renderer/tr_local.h"

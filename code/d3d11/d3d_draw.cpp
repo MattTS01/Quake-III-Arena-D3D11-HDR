@@ -208,6 +208,82 @@ static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shader
 
 
 
+void DrawToneMap(
+    const d3dToneMapRenderData_t* tmrd)
+{
+    // Don't think I need to to do this as it's not part of the engine rendering per se
+    //UpdateViewState();
+    //UpdateMaterialState();
+
+    //
+    // Update the constant buffer
+    //
+    d3dQuadRenderConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dQuadRenderConstantBuffer_t>(
+        g_pImmediateContext,
+        tmrd->constantBuffer);
+
+    // leave for now but can remove it entirely later 
+    cb->color[0] = 1; cb->color[1] = 1; cb->color[2] = 1; cb->color[3] = 1;
+
+
+    g_pImmediateContext->Unmap(tmrd->constantBuffer, 0);
+
+    //
+    // Update the vertex buffer
+    //
+    d3dQuadRenderVertex_t* vb = QD3D::MapDynamicBuffer<d3dQuadRenderVertex_t>(
+        g_pImmediateContext,
+        tmrd->vertexBuffer);
+
+
+
+    //tex coords are fixed for rendering fullscreen
+
+    vb[0].texcoords[0] = 0.0f; vb[0].texcoords[1] = 1.0f;
+    vb[1].texcoords[0] = 0.0f; vb[1].texcoords[1] = 0.0f;
+    vb[2].texcoords[0] = 1.0f; vb[2].texcoords[1] = 1.0f;
+    vb[3].texcoords[0] = 1.0f; vb[3].texcoords[1] = 0.0f;
+
+    vb[0].coords[0] = -1.0f; vb[0].coords[1] = -1.0f;
+    vb[1].coords[0] = -1.0f; vb[1].coords[1] = 1.0f;;
+    vb[2].coords[0] = 1.0f; vb[2].coords[1] = -1.0f;
+    vb[3].coords[0] = 1.0f; vb[3].coords[1] = 1.0f;
+
+
+    g_pImmediateContext->Unmap(tmrd->vertexBuffer, 0);
+
+    //
+    // Draw
+    //
+    UINT stride = sizeof(float) * 4;
+    UINT offset = 0;
+    ID3D11Buffer* psBuffers[] = {
+        g_DrawState.viewRenderData.psConstantBuffer,
+        g_DrawState.toneMapRenderData.constantBuffer
+    };
+
+
+
+    g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    g_pImmediateContext->IASetVertexBuffers(0, 1, &tmrd->vertexBuffer, &stride, &offset);
+    g_pImmediateContext->IASetInputLayout(tmrd->inputLayout);
+    g_pImmediateContext->IASetIndexBuffer(tmrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    g_pImmediateContext->VSSetShader(tmrd->vertexShader, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_DrawState.viewRenderData.vsConstantBuffer);
+    g_pImmediateContext->PSSetShader(tmrd->pixelShader, nullptr, 0);
+    // should be okay to set last parameter to NULL for defaults?
+
+    ID3D11SamplerState* samplerStates[] = { NULL };
+
+    g_pImmediateContext->PSSetSamplers(0, 1, samplerStates /* &image->pSampler*/);
+    g_pImmediateContext->PSSetShaderResources(0, 1, &g_BufferState.textureShaderResourceView);
+    g_pImmediateContext->PSSetConstantBuffers(0, 2, psBuffers);
+    g_pImmediateContext->DrawIndexed(6, 0, 0);
+
+    // Should unset SRV before using it as render arget
+    ID3D11ShaderResourceView* nullSRV[] = { nullptr };
+    g_pImmediateContext->PSSetShaderResources(0, 1, nullSRV);
+}
 
 
 

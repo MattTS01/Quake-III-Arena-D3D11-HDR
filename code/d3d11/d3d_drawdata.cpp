@@ -27,6 +27,54 @@ static void CreateVertexLayoutAndShader(
     FS_FreeFile( vsByteCode.blob );
 }
 
+// init the tone map shader data - mostly copied from the FSQ init function
+
+void InitToneMapRenderData(d3dToneMapRenderData_t* tmrd)
+{
+    Com_Memset(tmrd, 0, sizeof(d3dToneMapRenderData_t));
+
+    D3D11_INPUT_ELEMENT_DESC elements[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    CreateVertexLayoutAndShader("tm_vs", elements, _countof(elements), &tmrd->vertexShader, &tmrd->inputLayout);
+    tmrd->pixelShader = LoadPixelShader("tm_ps");
+
+    static const USHORT indices[] =
+    {
+        1, 3, 2,
+        2, 0, 1
+    };
+
+    tmrd->indexBuffer = QD3D::CreateImmutableBuffer(
+        g_pDevice,
+        D3D11_BIND_INDEX_BUFFER,
+        indices,
+        sizeof(indices));
+    if (!tmrd->indexBuffer) {
+        ri.Error(ERR_FATAL, "Could not create TM index buffer.\n");
+    }
+
+    tmrd->vertexBuffer = QD3D::CreateDynamicBuffer<d3dQuadRenderVertex_t>(
+        g_pDevice,
+        D3D11_BIND_VERTEX_BUFFER,
+        4);
+    if (!tmrd->vertexBuffer) {
+        ri.Error(ERR_FATAL, "Could not create TM vertex buffer.\n");
+    }
+
+    tmrd->constantBuffer = QD3D::CreateDynamicBuffer<d3dQuadRenderConstantBuffer_t>(
+        g_pDevice,
+        D3D11_BIND_CONSTANT_BUFFER);
+    if (!tmrd->constantBuffer) {
+        ri.Error(ERR_FATAL, "Could not create TM constant buffer.\n");
+    }
+
+
+
+}
+
 void InitQuadRenderData( d3dQuadRenderData_t* qrd ) 
 {
     Com_Memset( qrd, 0, sizeof( d3dQuadRenderData_t ) );
@@ -73,6 +121,19 @@ void InitQuadRenderData( d3dQuadRenderData_t* qrd )
 
 }
 
+void DestroyToneMapRenderData(d3dToneMapRenderData_t* tmrd)
+{
+    SAFE_RELEASE(tmrd->inputLayout);
+    SAFE_RELEASE(tmrd->vertexShader);
+    SAFE_RELEASE(tmrd->pixelShader);
+    SAFE_RELEASE(tmrd->vertexBuffer);
+    SAFE_RELEASE(tmrd->indexBuffer);
+    SAFE_RELEASE(tmrd->constantBuffer);
+
+    Com_Memset(tmrd, 0, sizeof(*tmrd));
+}
+
+
 void DestroyQuadRenderData( d3dQuadRenderData_t* qrd )
 {
     SAFE_RELEASE( qrd->inputLayout );
@@ -84,6 +145,8 @@ void DestroyQuadRenderData( d3dQuadRenderData_t* qrd )
 
     Com_Memset( qrd, 0, sizeof( *qrd ) );
 }
+
+
 
 void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd ) 
 {

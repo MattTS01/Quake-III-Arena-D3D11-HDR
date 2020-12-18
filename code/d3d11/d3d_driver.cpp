@@ -4,6 +4,8 @@
 #include "d3d_state.h"
 #include "d3d_image.h"
 #include "d3d_shaders.h"
+// add the draw header so I can draw the tone mapped quad in the end frame function
+#include "d3d_draw.h"
 
 #ifdef WIN8
 #   include "../win8/win8_d3d.h"
@@ -89,7 +91,10 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         static float defaultCol[] = { 0, 0, 0, 0 };
         if ( !clearCol ) { clearCol = defaultCol; }
 
-        g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
+        // clear the new texture render target instead
+        //g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
+        g_pImmediateContext->ClearRenderTargetView(g_BufferState.textureView, clearCol);
+
     }
 
     if ( bits & ( CLEAR_DEPTH | CLEAR_STENCIL ) )
@@ -98,6 +103,8 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         if ( bits & CLEAR_DEPTH ) { clearBits |= D3D11_CLEAR_DEPTH; }
         if ( bits & CLEAR_STENCIL ) { clearBits |= D3D11_CLEAR_STENCIL; }
         g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, clearBits, depth, (UINT8) stencil );
+       // g_pImmediateContext->ClearDepthStencilView(g_BufferState.depthTextureView, clearBits, depth, (UINT8)stencil);
+
     }
 }
 
@@ -210,6 +217,12 @@ void D3DDrv_SetDrawBuffer( int buffer )
 
 void D3DDrv_EndFrame( void )
 {
+    // set render target to the actual backbuffers
+    g_pImmediateContext->OMSetRenderTargets(1, &g_BufferState.backBufferView, g_BufferState.depthBufferView);
+
+    // Render full screen quad with texture and tone map it
+    DrawToneMap(&g_DrawState.toneMapRenderData);
+
     int frequency = 0;
 	if ( r_swapInterval->integer > 0 ) 
     {
@@ -241,7 +254,9 @@ void D3DDrv_EndFrame( void )
 
     // Present unbinds the rendertarget, so let's put it back (FFS)
     // Also seems to be required for new flip swap chain method
-    g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+    // Now setting texture to render target for post processing 
+    //g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+    g_pImmediateContext->OMSetRenderTargets(1, &g_BufferState.textureView, g_BufferState.depthBufferView);
 //#endif
 
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)

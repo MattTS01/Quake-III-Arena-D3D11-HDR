@@ -15,33 +15,13 @@ struct VS_PS_Data
     float4 ViewPos : TEXCOORD2;
 };
 
-float3 simple_reinhard(float3 x, float maxOutput) {
-    x = x / (x + float3(1.0, 1.0, 1.0));
-    return x *= maxOutput;
-}
 
 float4 main(VS_PS_Data input) : SV_TARGET
 {
-    //ClipToPlane(input.ViewPos);
-
-    //return FinalColor(
-    //    input.Color *
-    //    Diffuse.Sample(Sampler, input.AlbedoTC) *
-    //    Lightmap.Sample(Sampler, input.LightmapTC));
-
-    const float gamma = 1.6; // Set a gamma level but definitely not correct for HDR
     ClipToPlane(input.ViewPos);
 
-    float4 outColour = input.Color * Diffuse.Sample(Sampler, input.AlbedoTC) * Lightmap.Sample(Sampler, input.LightmapTC);
-    float3 mapped;
-
-    // Reinhard tone mapping
-    mapped = simple_reinhard(outColour, maxOutput); 
-
-    // gamma correction
-    mapped = pow(mapped, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
-
-    //mapped = float3(maxOutput, maxOutput, maxOutput);
-
-    return FinalColor(float4(mapped, outColour.a));
+    return FinalColor(
+        input.Color *
+        Diffuse.Sample(Sampler, input.AlbedoTC) *
+        Lightmap.Sample(Sampler, input.LightmapTC));
 }

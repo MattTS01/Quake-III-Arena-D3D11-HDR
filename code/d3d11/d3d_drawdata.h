@@ -2,6 +2,10 @@
 
 struct d3dImage_t;
 
+// new functions for drawing tone mappped fullscreen quad
+void InitToneMapRenderData(d3dToneMapRenderData_t* qrd);
+void DestroyToneMapRenderData(d3dToneMapRenderData_t* qrd);
+
 void InitQuadRenderData( d3dQuadRenderData_t* qrd );
 void DestroyQuadRenderData( d3dQuadRenderData_t* qrd );
 

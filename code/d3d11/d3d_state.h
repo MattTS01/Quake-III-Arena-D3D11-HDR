@@ -93,6 +93,21 @@ struct d3dViewRenderData_t
     ID3D11Buffer* vsConstantBuffer;
     ID3D11Buffer* psConstantBuffer;
 };
+// new struct for holding tone mapping shader information
+struct d3dToneMapRenderData_t
+{
+    // Shaders
+    ID3D11VertexShader* vertexShader;
+    ID3D11PixelShader* pixelShader;
+
+    // Vertex buffers
+    ID3D11InputLayout* inputLayout;
+    ID3D11Buffer* indexBuffer;
+    ID3D11Buffer* vertexBuffer;
+
+    // Constant buffers
+    ID3D11Buffer* constantBuffer;
+};
 
 struct d3dQuadRenderData_t
 {
@@ -180,8 +195,11 @@ struct d3dBackBufferState_t {
     D3D11_TEXTURE2D_DESC backBufferDesc;
     ID3D11RenderTargetView* backBufferView;
     ID3D11DepthStencilView* depthBufferView;
+    ID3D11RenderTargetView* textureView;
+    ID3D11DepthStencilView* depthTextureView;
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
     D3D_FEATURE_LEVEL featureLevel;
+    ID3D11ShaderResourceView* textureShaderResourceView;
 };
 
 // @pjb: stores common raster states
@@ -206,6 +224,7 @@ struct d3dBlendStates_t
 // @pjb: stores draw info like samplers and buffers
 struct d3dDrawState_t
 {
+    d3dToneMapRenderData_t toneMapRenderData;
     d3dQuadRenderData_t quadRenderData;
     d3dSkyBoxRenderData_t skyBoxRenderData;
     d3dViewRenderData_t viewRenderData;
@@ -260,6 +279,8 @@ void DrawQuad(
     const float* coords, 
     const float* texcoords, 
     const float* color );
+// new function for tone mapping the scene and rendering it to a fullscreen quad
+void DrawToneMap(const d3dToneMapRenderData_t *tmrd);
 
 // cullmode = CT_ flags
 void CommitRasterizerState( int cullMode, qboolean polyOffset, qboolean outline );

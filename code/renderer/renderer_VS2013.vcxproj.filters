@@ -663,5 +663,11 @@
     <FxCompile Include="..\hlsl\skybox_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\hlsl\tm_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\hlsl\tm_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
