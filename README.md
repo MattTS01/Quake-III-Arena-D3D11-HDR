@@ -6,9 +6,9 @@ Currently checks for HDR support, creates an HDR swapchain, sets HDR metadata fr
 Note: Currently does not support non-HDR displays at all. Will exit out on start-up if HDR support is not available. 
 
 # Known issues
-- Areas with animated textures appear darker than expected
-- scoring/leaderboard seems broken
 - MSAA not currently supported due to change in MSAA handling for new swapchain type 
+- scoring/leaderboard seems broken in the x64 build (likely due to some sort of type sizing issue)
+
 
 
 # HDR CVARs
