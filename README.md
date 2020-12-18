@@ -19,7 +19,9 @@ Note: Currently does not support non-HDR displays at all. Will exit out on start
 - r_maxcll - sets the max content luminance in cd/m^2
 - r_maxfall - sets the max frame average luminance in cd/m^2
 
+# Installation Instructions
 
+Copy the release zip into your Quake 3 directory. Make sure HDR is enabled in Windows and then run quake3hdr.exe. Will require Windows 10 editions recent enough to support HDR. You can edit the HDR related CVARS in autoexec.cfg to match your display's specification or to your liking. 
 
 
 # Quake 3: Arena NT #
